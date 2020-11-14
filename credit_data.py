@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 
 ### Prepare this dataset to be used for further analysis
 ## Import dataframe
-df_credit = pd.read_csv("c:/Users/Jhanava/Desktop/2020 FALL/CAP5610 - Introduction to Machine Learning/Final project/Final_Project/creditcard.csv")
+df_credit = pd.read_csv("c:/Users/Jhanava/Desktop/2020 FALL/CAP5610 - Introduction to Machine Learning/Final project/data/creditcard.csv")
 
 # find column names and save them (convenience)
 columns = df_credit.columns[:]
