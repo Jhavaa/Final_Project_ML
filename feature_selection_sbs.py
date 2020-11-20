@@ -3,7 +3,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 
-from credit_card_data import small_X_train_std, small_y_train
+from credit_data import small_X_train_std, small_y_train
 from sbs import SBS
 
 ## Declare the learning algorithms that will be used
