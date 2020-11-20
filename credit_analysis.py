@@ -1,6 +1,5 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
 from sklearn.preprocessing import StandardScaler
 
 from credit_data import df_credit
