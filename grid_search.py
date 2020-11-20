@@ -25,13 +25,13 @@ param_range = [0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
 # Grid Search on lr
 param_grid = [{'logisticregression__C': param_range, 
                'logisticregression__solver': ['lbfgs'],
-               'logisticregression__penalty':['l1','None']},
+               'logisticregression__penalty':['l2']},
               {'logisticregression__C': param_range,
                'logisticregression__solver': ['liblinear'],
-               'logisticregression__penalty':['l1','l2','None']},
+               'logisticregression__penalty':['l1','l2']},
               {'logisticregression__C': param_range,
                'logisticregression__solver': ['sag'],
-               'logisticregression__penalty':['l1','l2','None']}]
+               'logisticregression__penalty':['l2']}]
 
 gs = GridSearchCV(pipe_lr, 
                   param_grid,

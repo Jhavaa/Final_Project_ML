@@ -6,7 +6,8 @@ from sklearn.preprocessing import StandardScaler
 
 ### Prepare this dataset to be used for further analysis
 ## Import dataframe
-df_credit = pd.read_csv("c:/Users/Jhanava/Desktop/2020 FALL/CAP5610 - Introduction to Machine Learning/Final project/data/creditcard.csv")
+# df_credit = pd.read_csv("c:/Users/Jhanava/Desktop/2020 FALL/CAP5610 - Introduction to Machine Learning/Final project/data/creditcard.csv")
+df_credit = pd.read_csv("../data/creditcard.csv")
 
 # Shuffle data entries
 df_credit = df_credit.sample(frac=1)
