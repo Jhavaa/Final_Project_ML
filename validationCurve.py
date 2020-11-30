@@ -18,7 +18,7 @@ from credit_data import small_X_train_scaled_std, small_y_train_scaled,X_train_s
 from sklearn.model_selection import learning_curve
 
 #pipe_lr = Pipeline([('scl', StandardScaler()),('pca', PCA(n_components=2)),('clf', LogisticRegression(random_state=1, max_iter=10000))])
-pipe_lr = Pipeline([('scl', StandardScaler()),('pca', PCA(n_components=2)),('clf', SVC(C=10,kernel='rbf',gamma=0.1))])
+pipe_lr = Pipeline([('scl', StandardScaler()),('pca', PCA(n_components=2)),('clf', SVC(C=10,kernel='rbf',gamma=0.1,probability=True))])
 
 pipe_lr.fit(X_train_scaled, y_train_scaled)
 print('Test Accuracy: %.3f' % pipe_lr.score(X_test_scaled, y_test_scaled))
@@ -110,7 +110,8 @@ plt.show()
 from sklearn.metrics import roc_curve, auc
 from numpy import interp
 
-#pipe_lr = Pipeline([('scl', StandardScaler()),('pca', PCA(n_components=2)),('clf', LogisticRegression(penalty='l2', random_state=0, C=100.0))])
+pipe_lr = Pipeline([('scl', StandardScaler()),('pca', PCA(n_components=2)),('clf', LogisticRegression(penalty='l2', random_state=0, C=100.0))])
+#pipe_lr = Pipeline([('scl', StandardScaler()),('pca', PCA(n_components=2)),('clf', LogisticRegression(penalty=bestV["logisticregression__penalty"]))])
 
 X_train2 = X_train_scaled[:, [4, 14]]
 cv = list(StratifiedKFold(n_splits=3, random_state=1).split(X_train_scaled, y_train_scaled))
@@ -122,8 +123,7 @@ mean_fpr = np.linspace(0, 1, 100)
 all_tpr = []
 
 for i, (train, test) in enumerate(cv):
-    probas = pipe_lr.fit(X_train2[train],
-                         y_train_scaled[train]).predict_proba(X_train2[test])
+    probas = pipe_lr.fit(X_train2[train],y_train_scaled[train]).predict_proba(X_train2[test])
 
     fpr, tpr, thresholds = roc_curve(y_train_scaled[test],
                                      probas[:, 1],

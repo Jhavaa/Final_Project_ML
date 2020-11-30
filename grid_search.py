@@ -8,7 +8,7 @@ from sklearn.model_selection import GridSearchCV
 
 from credit_data import small_X_train_scaled_std, small_y_train_scaled
 
-
+from validation import Validation
 ### Setup pipes
 
 pipe_lr = make_pipeline(StandardScaler(),
@@ -37,8 +37,9 @@ gs = GridSearchCV(pipe_lr,
                   param_grid,
                   n_jobs=-1)
 gs = gs.fit(small_X_train_scaled_std, small_y_train_scaled)
+best_params_LR = gs.best_params_
 print('Grid Search best score (LR): %f' % gs.best_score_)
-print('Grid Search best params(LR): ', gs.best_params_)
+print('Grid Search best params(LR): ', best_params_LR)
 
 # Grid Search on svm
 param_grid = [{'svc__C': param_range, 
@@ -51,8 +52,9 @@ gs = GridSearchCV(pipe_svm,
                   param_grid, 
                   n_jobs=-1)
 gs = gs.fit(small_X_train_scaled_std, small_y_train_scaled)
+best_params_SVM =gs.best_params_
 print('Grid Search best score (SVM): %f' % gs.best_score_)
-print('Grid Search best params (SVM): ', gs.best_params_)
+print('Grid Search best params (SVM): ', best_params_SVM)
 
 # Grid Search on rf
 param_grid = [{'randomforestclassifier__n_estimators': [100, 120, 140, 160, 180, 200], 
@@ -63,5 +65,25 @@ gs = GridSearchCV(pipe_rf,
                   param_grid,
                   n_jobs=-1)
 gs = gs.fit(small_X_train_scaled_std, small_y_train_scaled)
+best_params_RF = gs.best_params_
 print('Grid Search best score (RF): %f' % gs.best_score_)
-print('Grid Search best params (RF): ', gs.best_params_)
+print('Grid Search best params (RF): ', best_params_RF)
+
+
+
+#LR
+c_LR=best_params_LR['logisticregression__C']
+penalty=best_params_LR['logisticregression__penalty']
+solver=best_params_LR['logisticregression__solver']
+Validation(LogisticRegression(penalty=penalty, random_state=0, C=c_LR,solver=solver))
+
+#SVM
+c_SVC=best_params_SVM['svc__C']
+gamma=best_params_SVM['svc__gamma']
+kernel=best_params_SVM['svc__kernel']
+Validation(SVC(C=c_SVC,gamma=gamma,kernel=kernel,probability=True))
+#RF
+class_weight=best_params_RF['randomforestclassifier__class_weight']
+max_depth=best_params_RF['randomforestclassifier__max_depth']
+n_estimators=best_params_RF['randomforestclassifier__n_estimators']
+Validation(RandomForestClassifier(n_estimators=n_estimators,max_depth=max_depth,class_weight=class_weight))
