@@ -1,8 +1,15 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 
 from credit_data import df_credit
+
+### Are there any missing values to address?
+
+print('Number of missing (null) values in the dataframe: ', df_credit.isnull().sum())
+
+# There are no null values in the dataframe, and no connotation of missing values can be found in the dataset.
 
 ### The dataframe was said to be imbalanced on the website,
 ### but how imbalanced?
@@ -13,6 +20,17 @@ num_of_nofraud = df_credit['Class'].value_counts()[0]
 num_of_fraud = df_credit['Class'].value_counts()[1]
 print('amount of class 0 (no fraud): ', num_of_nofraud)
 print('amount of class 1 (fraud): ', num_of_fraud)
+
+classes = ('Not Fraud', 'Fraud')
+y_pos = np.arange(len(classes))
+performance = [num_of_nofraud, num_of_fraud]
+
+plt.bar(y_pos, performance, align='center', alpha=0.5)
+plt.xticks(y_pos, classes)
+plt.ylabel('# of Entries')
+plt.title('Distribution of Classes')
+
+plt.show()
 
 ## Percentage calculation:
 print(round(num_of_fraud/len(df_credit) * 100, 3), '% of the data are fraudulent credit charges')
@@ -53,6 +71,17 @@ num_of_nofraud = df_credit_even['Class'].value_counts()[0]
 num_of_fraud = df_credit_even['Class'].value_counts()[1]
 print('amount of class 0 (no fraud): ', num_of_nofraud)
 print('amount of class 1 (fraud): ', num_of_fraud)
+
+classes = ('Not Fraud', 'Fraud')
+y_pos = np.arange(len(classes))
+performance = [num_of_nofraud, num_of_fraud]
+
+plt.bar(y_pos, performance, align='center', alpha=0.5)
+plt.xticks(y_pos, classes)
+plt.ylabel('# of Entries')
+plt.title('Distribution of Classes')
+
+plt.show()
 
 # **This distribution will be done in the credit_data.py file.
 #   The new dataframe is called "df_credit_even".**
