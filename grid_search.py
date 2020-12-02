@@ -82,6 +82,7 @@ c_SVC=best_params_SVM['svc__C']
 gamma=best_params_SVM['svc__gamma']
 kernel=best_params_SVM['svc__kernel']
 Validation(SVC(C=c_SVC,gamma=gamma,kernel=kernel,probability=True))
+
 #RF
 class_weight=best_params_RF['randomforestclassifier__class_weight']
 max_depth=best_params_RF['randomforestclassifier__max_depth']
