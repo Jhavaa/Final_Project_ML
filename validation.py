@@ -26,7 +26,6 @@ def Validation(estimator):
         pipe_lr.fit(X_train_scaled[train], y_train_scaled[train])
         score = pipe_lr.score(X_train_scaled[test], y_train_scaled[test])
         scores.append(score)
-        #print('Fold: %s, Class dist.: %s, Acc: %.3f' % (k + 1,np.bincount(y_train[train]), score))
 
     print('\nCV accuracy: %.3f +/- %.3f' % (np.mean(scores), np.std(scores)))
 
@@ -87,7 +86,7 @@ def Validation(estimator):
     y_pred = pipe_lr.predict(X_test_scaled)
     confmat = confusion_matrix(y_true=y_test_scaled, y_pred=y_pred)
     print(confmat)
-
+    
     fig, ax = plt.subplots(figsize=(2.5, 2.5))
     ax.matshow(confmat, alpha=0.3)
     for i in range(confmat.shape[0]):
@@ -100,6 +99,11 @@ def Validation(estimator):
     plt.tight_layout()
     plt.show()
 
+    recall = confmat[1,1]/(confmat[1,1]+confmat[1,0])
+    precision = confmat[1,1]/(confmat[1,1]+confmat[0,1])
+    F1 = 2*precision*recall/(recall+precision)
+    print("recall: {} \n precision{} \n F1{}".format(recall,precision,F1))
+    
     from sklearn.metrics import roc_curve, auc
     from numpy import interp
 

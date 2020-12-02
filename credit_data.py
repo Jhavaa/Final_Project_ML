@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 ## Import dataframe
 # df_credit = pd.read_csv("c:/Users/Jhanava/Desktop/2020 FALL/CAP5610 - Introduction to Machine Learning/Final project/data/creditcard.csv")
 df_credit = pd.read_csv("../data/creditcard.csv")
-# df_credit = pd.read_csv("C:\\Users\\Adnrew\\Dropbox\\dataSets\\creditcard.csv")
+#f_credit = pd.read_csv("C:\\Users\\Adnrew\\Dropbox\\dataSets\\creditcard.csv")
 #df_credit = pd.read_csv("https://www.kaggle.com/mlg-ulb/creditcardfraud/download")
 
 
