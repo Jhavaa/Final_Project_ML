@@ -10,28 +10,36 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import validation_curve
 from sklearn.svm import SVC
-from credit_data import small_X_train_scaled_std, small_y_train_scaled,X_train_scaled,y_train_scaled,X_test_scaled,y_test_scaled
+#from credit_data import small_X_train_scaled_std, small_y_train_scaled,X_train_scaled,y_train_scaled,X_test_scaled,y_test_scaled
 from sklearn.model_selection import learning_curve
 
-def Validation(estimator):
-    pipe_lr = Pipeline([('scl', StandardScaler()),('pca', PCA(n_components=2)),('clf',estimator)])
-    pipe_lr.fit(X_train_scaled, y_train_scaled)
-    print('Test Accuracy: %.3f' % pipe_lr.score(X_test_scaled, y_test_scaled))
-    y_pred = pipe_lr.predict(X_test_scaled)
+def Validation(estimator,X_train,X_test,y_train,y_test):
+    pipe_model = Pipeline([('scl', StandardScaler()),('pca', PCA(n_components=2)),('clf',estimator)])
+    pipe_model.fit(X_train, y_train)
+    print('Test Accuracy: %.3f' % pipe_model.score(X_test, y_test))
+    y_pred = pipe_model.predict(X_test)
 
-    kfold = StratifiedKFold(n_splits=10,random_state=1).split(X_train_scaled, y_train_scaled)
+    
+    validationcurve(pipe_model,X_train,X_test,y_train,y_test)
+    confusion(pipe_model,X_train,X_test,y_train,y_test)
+    ROC(pipe_model,X_train,X_test,y_train,y_test)
+    
+    
+    
+def validationcurve(pipe_model,X_train,X_test,y_train,y_test):
+    kfold = StratifiedKFold(n_splits=10,random_state=1).split(X_train, y_train)
 
     scores = []
     for k,(train, test) in enumerate(kfold):
-        pipe_lr.fit(X_train_scaled[train], y_train_scaled[train])
-        score = pipe_lr.score(X_train_scaled[test], y_train_scaled[test])
+        pipe_model.fit(X_train[train], y_train[train])
+        score = pipe_model.score(X_train[test], y_train[test])
         scores.append(score)
 
     print('\nCV accuracy: %.3f +/- %.3f' % (np.mean(scores), np.std(scores)))
 
-    scores = cross_val_score(estimator=pipe_lr,
-                            X=X_train_scaled,
-                            y=y_train_scaled,
+    scores = cross_val_score(estimator=pipe_model,
+                            X=X_train,
+                            y=y_train,
                             cv=10,
                             n_jobs=1)
     print('CV accuracy scores: %s' % scores)
@@ -39,9 +47,9 @@ def Validation(estimator):
 
 
     train_sizes, train_scores, test_scores =\
-                    learning_curve(estimator=pipe_lr,
-                                X=X_train_scaled,
-                                y=y_train_scaled,
+                    learning_curve(estimator=pipe_model,
+                                X=X_train,
+                                y=y_train,
                                 train_sizes=np.linspace(0.1, 1.0, 10),
                                 cv=10,
                                 n_jobs=1)
@@ -77,14 +85,14 @@ def Validation(estimator):
     plt.ylim([0.8, 1.0])
     plt.tight_layout()
     plt.show()
+    
 
-
-
+def confusion(pipe_model,X_train,X_test,y_train,y_test):
     from sklearn.metrics import confusion_matrix
 
-    pipe_lr.fit(X_train_scaled, y_train_scaled)
-    y_pred = pipe_lr.predict(X_test_scaled)
-    confmat = confusion_matrix(y_true=y_test_scaled, y_pred=y_pred)
+    pipe_model.fit(X_train, y_train)
+    y_pred = pipe_model.predict(X_test)
+    confmat = confusion_matrix(y_true=y_test, y_pred=y_pred)
     print(confmat)
     
     fig, ax = plt.subplots(figsize=(2.5, 2.5))
@@ -103,60 +111,59 @@ def Validation(estimator):
     precision = confmat[1,1]/(confmat[1,1]+confmat[0,1])
     F1 = 2*precision*recall/(recall+precision)
     print("recall: {} \n precision{} \n F1{}".format(recall,precision,F1))
-    
-    from sklearn.metrics import roc_curve, auc
-    from numpy import interp
+    return recall,precision,F1
 
-    #pipe_lr = Pipeline([('scl', StandardScaler()),('pca', PCA(n_components=2)),('clf', LogisticRegression(penalty='l2', random_state=0, C=100.0))])
+def ROC(pipe_model,X_train,X_test,y_train,y_test):
+        from sklearn.metrics import roc_curve, auc
+        from numpy import interp
+        X_train2 = X_train[:, [4, 14]]
+        cv = list(StratifiedKFold(n_splits=3, random_state=1).split(X_train, y_train))
 
-    X_train2 = X_train_scaled[:, [4, 14]]
-    cv = list(StratifiedKFold(n_splits=3, random_state=1).split(X_train_scaled, y_train_scaled))
+        fig = plt.figure(figsize=(7, 5))
 
-    fig = plt.figure(figsize=(7, 5))
+        mean_tpr = 0.0
+        mean_fpr = np.linspace(0, 1, 100)
+        all_tpr = []
 
-    mean_tpr = 0.0
-    mean_fpr = np.linspace(0, 1, 100)
-    all_tpr = []
+        for i, (train, test) in enumerate(cv):
+                probas = pipe_model.fit(X_train2[train],y_train[train]).predict_proba(X_train2[test])
 
-    for i, (train, test) in enumerate(cv):
-        probas = pipe_lr.fit(X_train2[train],y_train_scaled[train]).predict_proba(X_train2[test])
+                fpr, tpr, thresholds = roc_curve(y_train[test],
+                                                probas[:, 1],
+                                                pos_label=1)
+                mean_tpr += interp(mean_fpr, fpr, tpr)
+                mean_tpr[0] = 0.0
+                roc_auc = auc(fpr, tpr)
+                plt.plot(fpr,
+                        tpr,
+                        lw=1,
+                        label='ROC fold %d (area = %0.2f)'
+                        % (i+1, roc_auc))
 
-        fpr, tpr, thresholds = roc_curve(y_train_scaled[test],
-                                        probas[:, 1],
-                                        pos_label=1)
-        mean_tpr += interp(mean_fpr, fpr, tpr)
-        mean_tpr[0] = 0.0
-        roc_auc = auc(fpr, tpr)
-        plt.plot(fpr,
-                tpr,
-                lw=1,
-                label='ROC fold %d (area = %0.2f)'
-                    % (i+1, roc_auc))
+        plt.plot([0, 1],
+                [0, 1],
+                linestyle='--',
+                color=(0.6, 0.6, 0.6),
+                label='random guessing')
 
-    plt.plot([0, 1],
-            [0, 1],
-            linestyle='--',
-            color=(0.6, 0.6, 0.6),
-            label='random guessing')
+        mean_tpr /= len(cv)
+        mean_tpr[-1] = 1.0
+        mean_auc = auc(mean_fpr, mean_tpr)
+        plt.plot(mean_fpr, mean_tpr, 'k--',
+                label='mean ROC (area = %0.2f)' % mean_auc, lw=2)
+        plt.plot([0, 0, 1],
+                [0, 1, 1],
+                lw=2,
+                linestyle=':',
+                color='black',
+                label='perfect performance')
 
-    mean_tpr /= len(cv)
-    mean_tpr[-1] = 1.0
-    mean_auc = auc(mean_fpr, mean_tpr)
-    plt.plot(mean_fpr, mean_tpr, 'k--',
-            label='mean ROC (area = %0.2f)' % mean_auc, lw=2)
-    plt.plot([0, 0, 1],
-            [0, 1, 1],
-            lw=2,
-            linestyle=':',
-            color='black',
-            label='perfect performance')
+        plt.xlim([-0.05, 1.05])
+        plt.ylim([-0.05, 1.05])
+        plt.xlabel('false positive rate')
+        plt.ylabel('true positive rate')
+        plt.title('Receiver Operator Characteristic')
+        plt.legend(loc="lower right")
 
-    plt.xlim([-0.05, 1.05])
-    plt.ylim([-0.05, 1.05])
-    plt.xlabel('false positive rate')
-    plt.ylabel('true positive rate')
-    plt.title('Receiver Operator Characteristic')
-    plt.legend(loc="lower right")
-
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()

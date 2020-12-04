@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
 
-from credit_data import small_X_train_scaled_std, small_y_train_scaled
+from credit_data import small_X_train_scaled_std, small_y_train_scaled,X_train_scaled,y_train_scaled,X_test_scaled,y_test_scaled
 
 from validation import Validation
 ### Setup pipes
@@ -75,16 +75,19 @@ print('Grid Search best params (RF): ', best_params_RF)
 c_LR=best_params_LR['logisticregression__C']
 penalty=best_params_LR['logisticregression__penalty']
 solver=best_params_LR['logisticregression__solver']
-Validation(LogisticRegression(penalty=penalty, random_state=0, C=c_LR,solver=solver))
+Validation(LogisticRegression(penalty=penalty, random_state=0, C=c_LR,solver=solver),X_train_scaled,X_test_scaled,y_train_scaled,y_test_scaled)
 
 #SVM
 c_SVC=best_params_SVM['svc__C']
 gamma=best_params_SVM['svc__gamma']
 kernel=best_params_SVM['svc__kernel']
-Validation(SVC(C=c_SVC,gamma=gamma,kernel=kernel,probability=True))
+Validation(SVC(C=c_SVC,gamma=gamma,kernel=kernel,probability=True),X_train_scaled,X_test_scaled,y_train_scaled,y_test_scaled)
 
 #RF
 class_weight=best_params_RF['randomforestclassifier__class_weight']
 max_depth=best_params_RF['randomforestclassifier__max_depth']
 n_estimators=best_params_RF['randomforestclassifier__n_estimators']
-Validation(RandomForestClassifier(n_estimators=n_estimators,max_depth=max_depth,class_weight=class_weight))
+Validation(RandomForestClassifier(n_estimators=n_estimators,max_depth=max_depth,class_weight=class_weight),X_train_scaled,X_test_scaled,y_train_scaled,y_test_scaled)
+
+
+
